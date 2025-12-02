@@ -1,36 +1,48 @@
-# 6502 LED Light Show
+# 6502 Template - Tang Nano 9K
 
-Juego de luces LED para CPU 6502 en FPGA Tang Nano.
+🚀 **Proyecto base/template** para desarrollo en CPU 6502 sobre FPGA Tang Nano 9K.
+
+Usa este proyecto como punto de partida para crear tus propias aplicaciones con el procesador 6502.
 
 ## Características
 
-- ✅ CPU 6502 @ 3.375 MHz en FPGA Tang Nano
-- ✅ 6 LEDs con efectos de iluminación
-- ✅ 4 efectos visuales diferentes
+- ✅ CPU 6502 @ 3.375 MHz en FPGA Tang Nano 9K
+- ✅ Control de 6 LEDs 
+- ✅ Comunicación UART para debug
 - ✅ Compilación con cc65
+- ✅ Estructura lista para expandir
 
-## Hardware
+## Hardware Soportado
 
 | Componente | Dirección | Descripción |
 |------------|-----------|-------------|
 | PORT_SALIDA_LED | $C001 | Puerto de salida para 6 LEDs (bits 0-5) |
 | CONF_PORT_SALIDA_LED | $C003 | Configuración: 0=salida, 1=entrada |
+| UART | - | Comunicación serial para debug |
 
-## Estructura
+## Estructura del Proyecto
 
 ```
-micro6502/
 ├── src/
-│   ├── main.c              # Programa principal con efectos LED
+│   ├── main.c              # Programa principal (edita aquí tu código)
 │   └── simple_vectors.s    # Vectores de interrupción 6502
+├── libs/                   # Librerías externas (UART, I2C, etc.)
 ├── config/
 │   └── fpga.cfg            # Configuración del linker cc65
 ├── scripts/
 │   └── bin2rom3.py         # Conversor BIN → VHDL
-├── build/                  # Archivos compilados
-├── output/                 # ROM generada (.vhd, .bin, .hex)
+├── build/                  # Archivos compilados (generado)
+├── output/                 # ROM generada (generado)
 └── makefile                # Compilación con cc65
 ```
+
+## Cómo Usar este Template
+
+1. **Clona o descarga** este repositorio
+2. **Edita** `src/main.c` con tu código
+3. **Agrega librerías** en la carpeta `libs/` según necesites
+4. **Compila** con `make`
+5. **Carga** `output/rom.vhd` en tu proyecto FPGA
 
 ## Compilación
 
@@ -51,16 +63,20 @@ make clean
 ### Cargar en FPGA
 Copiar `output/rom.vhd` al proyecto FPGA y sintetizar.
 
-## Efectos de Luces
+## Ejemplo Incluido
 
-El programa ejecuta 4 efectos en bucle infinito:
+El `main.c` incluye un ejemplo básico que:
+- Inicializa el puerto de LEDs
+- Inicializa la UART
+- Alterna el encendido/apagado de LEDs
+- Envía mensajes por UART para debug
 
-| Efecto | Descripción |
-|--------|-------------|
-| Knight Rider | LED que recorre de izquierda a derecha y regresa |
-| Llenado | LEDs se llenan desde los extremos hacia el centro |
-| Alternado | Parpadeo alternado (010101 ↔ 101010) |
-| Contador | Contador binario de 0 a 63 |
+```c
+while (1) {
+    encendido(10000);   // Enciende LEDs + mensaje UART
+    apagado(10000);     // Apaga LEDs + mensaje UART
+}
+```
 
 ## Mapa de Memoria
 
@@ -75,10 +91,9 @@ El programa ejecuta 4 efectos en bucle infinito:
 
 ## Requisitos
 
-- [cc65](https://cc65.github.io/) - Compilador C para 6502 (instalado en `D:\cc65`)
+- [cc65](https://cc65.github.io/) - Compilador C para 6502
 - Python 3 - Para el script bin2rom3.py
-- FPGA Tang Nano 9K (o compatible)
-- 6 LEDs conectados a los bits 0-5 del puerto $C001
+- FPGA Tang Nano 9K
 
 ## Licencia
 
