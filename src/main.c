@@ -18,9 +18,6 @@
 /* Registro de configuración: 0=salida, 1=entrada */
 #define CONF_PORT_SALIDA_LED (*(volatile uint8_t*)0xC003)
 
-/* Máscara para los 6 LEDs */
-#define LED_MASK    0x3F
-
 /* ============================================================================
  * FUNCIONES DE UTILIDAD
  * ============================================================================ */
