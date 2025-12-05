@@ -1,5 +1,9 @@
-# Makefile para 6502 I2C EPROM Test
-# Compila main.c con todas las librerías
+# ============================================
+# Makefile - 6502 Template para Tang Nano 9K
+# ============================================
+# Compila código C con cc65 y genera ROM VHDL
+# Compatible con librerías estándar de cc65
+# ============================================
 
 # ============================================
 # DIRECTORIOS
@@ -12,7 +16,7 @@ CONFIG_DIR = config
 SCRIPTS_DIR = scripts
 
 # ============================================
-# HERRAMIENTAS
+# HERRAMIENTAS CC65
 # ============================================
 CC65 = cc65
 CA65 = ca65
@@ -28,21 +32,21 @@ PLATAFORMA = D:\cc65\lib\none.lib
 CFLAGS = -t none -O --cpu 6502
 
 # ============================================
-# LIBRERÍAS
+# LIBRERÍAS (agregar más aquí)
 # ============================================
-
 UART_DIR = $(LIB_DIR)/uart
 
-INCLUDES = -I$(UART_DIR) 
+INCLUDES = -I$(UART_DIR)
 
 # ============================================
 # ARCHIVOS OBJETO
 # ============================================
+STARTUP_OBJ = $(BUILD_DIR)/startup.o
 MAIN_OBJ = $(BUILD_DIR)/main.o
 UART_OBJ = $(BUILD_DIR)/uart.o
 VECTORS_OBJ = $(BUILD_DIR)/simple_vectors.o
 
-OBJS = $(MAIN_OBJ) $(UART_OBJ) $(VECTORS_OBJ)
+OBJS = $(STARTUP_OBJ) $(MAIN_OBJ) $(UART_OBJ) $(VECTORS_OBJ)
 
 # ============================================
 # TARGET PRINCIPAL
@@ -65,6 +69,10 @@ dirs:
 # ============================================
 # COMPILACIÓN DE OBJETOS
 # ============================================
+
+# Startup (copydata + zerobss)
+$(STARTUP_OBJ): $(SRC_DIR)/startup.s
+	$(CA65) -t none -o $@ $<
 
 # Main
 $(MAIN_OBJ): $(SRC_DIR)/main.c

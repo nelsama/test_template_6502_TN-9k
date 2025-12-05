@@ -10,6 +10,8 @@ Usa este proyecto como punto de partida para crear tus propias aplicaciones con 
 - ✅ Control de 6 LEDs 
 - ✅ Comunicación UART para debug
 - ✅ Compilación con cc65
+- ✅ **Compatible con librerías estándar de cc65** (stdlib, string, etc.)
+- ✅ Startup con copydata y zerobss
 - ✅ Estructura lista para expandir
 
 ## Hardware Soportado
@@ -18,22 +20,24 @@ Usa este proyecto como punto de partida para crear tus propias aplicaciones con 
 |------------|-----------|-------------|
 | PORT_SALIDA_LED | $C001 | Puerto de salida para 6 LEDs (bits 0-5) |
 | CONF_PORT_SALIDA_LED | $C003 | Configuración: 0=salida, 1=entrada |
-| UART | - | Comunicación serial para debug |
+| UART | $C020-$C022 | Comunicación serial para debug |
 
 ## Estructura del Proyecto
 
 ```
 ├── src/
-│   ├── main.c              # Programa principal (edita aquí tu código)
+│   ├── main.c              # Programa principal (edita aquí)
+│   ├── startup.s           # Inicialización del sistema
 │   └── simple_vectors.s    # Vectores de interrupción 6502
-├── libs/                   # Librerías externas (UART, I2C, etc.)
+├── libs/                   # Librerías (UART, Timer, I2C, etc.)
+│   └── uart/
 ├── config/
 │   └── fpga.cfg            # Configuración del linker cc65
 ├── scripts/
 │   └── bin2rom3.py         # Conversor BIN → VHDL
 ├── build/                  # Archivos compilados (generado)
 ├── output/                 # ROM generada (generado)
-└── makefile                # Compilación con cc65
+└── makefile                # Compilación
 ```
 
 ## Cómo Usar este Template
@@ -63,18 +67,25 @@ make clean
 ### Cargar en FPGA
 Copiar `output/rom.vhd` al proyecto FPGA y sintetizar.
 
-## Ejemplo Incluido
+## Uso de Librerías cc65
 
-El `main.c` incluye un ejemplo básico que:
-- Inicializa el puerto de LEDs
-- Inicializa la UART
-- Alterna el encendido/apagado de LEDs
-- Envía mensajes por UART para debug
+Este template incluye un startup que inicializa correctamente el runtime de cc65.
+Puedes usar librerías estándar sin problemas:
 
 ```c
-while (1) {
-    encendido(10000);   // Enciende LEDs + mensaje UART
-    apagado(10000);     // Apaga LEDs + mensaje UART
+#include <stdlib.h>
+#include <string.h>
+
+int main(void) {
+    char buffer[32];
+    int random_num;
+    
+    srand(12345);
+    random_num = rand() % 100;
+    
+    strcpy(buffer, "Hola 6502!");
+    
+    // ...
 }
 ```
 
@@ -82,12 +93,21 @@ while (1) {
 
 | Región | Dirección | Tamaño | Descripción |
 |--------|-----------|--------|-------------|
-| Zero Page | $0002-$00FF | 254 bytes | Variables rápidas |
-| RAM | $0100-$3DFF | ~15 KB | RAM principal |
+| Zero Page | $0002-$00FF | 254 bytes | Variables rápidas cc65 |
+| RAM | $0100-$3DFF | ~15 KB | RAM principal + DATA |
 | Stack | $3E00-$3FFF | 512 bytes | Pila del sistema |
 | ROM | $8000-$9FF9 | 8 KB | Código del programa |
 | Vectores | $9FFA-$9FFF | 6 bytes | NMI, RESET, IRQ |
 | I/O | $C000-$C003 | 4 bytes | Puertos de E/S |
+| UART | $C020-$C022 | 3 bytes | Comunicación serial |
+
+## Archivos del Sistema
+
+| Archivo | Descripción |
+|---------|-------------|
+| `startup.s` | Inicializa stack, copydata, zerobss y llama a main |
+| `simple_vectors.s` | Define vectores NMI, RESET, IRQ |
+| `fpga.cfg` | Mapa de memoria para el linker |
 
 ## Requisitos
 

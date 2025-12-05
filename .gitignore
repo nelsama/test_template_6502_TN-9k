@@ -4,8 +4,10 @@ libs/
 # Archivos compilados
 build/
 *.o
-*.s
 *.bin
+
+# Archivos ensamblador generados (en build/)
+build/*.s
 
 # Archivos generados
 output/

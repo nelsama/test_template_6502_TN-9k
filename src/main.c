@@ -1,29 +1,37 @@
 /**
- * main.c - Juego de luces LED para 6502
+ * main.c - Template 6502 para Tang Nano 9K
+ * 
+ * Este es un proyecto base para desarrollo en 6502.
+ * Compatible con librerías estándar de cc65 (stdlib, string, etc.)
  * 
  * Hardware:
- *   - 6502 CPU @ 3.375 MHz en FPGA Tang Nano
- *   - 6 LEDs conectados a los bits 0-5 de PORT_SALIDA_LED ($C001)
- *   - Configuración del puerto en CONF_PORT_SALIDA_LED ($C003)
+ *   - CPU 6502 @ 3.375 MHz en FPGA Tang Nano 9K
+ *   - 6 LEDs conectados a PORT_SALIDA_LED ($C001)
+ *   - UART para debug
  * 
  * Compilar: make
  */
 
 #include <stdint.h>
+/* Puedes incluir librerías de cc65: */
+/* #include <stdlib.h> */
+/* #include <string.h> */
+
 #include "../libs/uart/uart.h"
 
-/* Registro de salida de LEDs (6 bits inferiores) */
-#define PORT_SALIDA_LED      (*(volatile uint8_t*)0xC001)
+/* ============================================================================
+ * REGISTROS DE HARDWARE
+ * ============================================================================ */
 
-/* Registro de configuración: 0=salida, 1=entrada */
-#define CONF_PORT_SALIDA_LED (*(volatile uint8_t*)0xC003)
+#define PORT_SALIDA_LED      (*(volatile uint8_t*)0xC001)  /* Salida LEDs */
+#define CONF_PORT_SALIDA_LED (*(volatile uint8_t*)0xC003)  /* Config: 0=out, 1=in */
 
 /* ============================================================================
- * FUNCIONES DE UTILIDAD
+ * FUNCIONES
  * ============================================================================ */
 
 /**
- * Delay simple
+ * Delay simple por software
  */
 void delay(uint16_t count) {
     volatile uint16_t i;
@@ -32,44 +40,29 @@ void delay(uint16_t count) {
     }
 }
 
-
-/**
- * LEDS Encendidos
- */
-void encendido(uint16_t velocidad) {
-    uart_puts("Encendiendo..\r\n");
-    PORT_SALIDA_LED = 0x00;
-    delay(velocidad);
-}
-
-/**
- * LEDS Apagados
- */
-void apagado(uint16_t velocidad) {
-    uart_puts("Apagando..\r\n");
-    PORT_SALIDA_LED = 0xFF;
-    delay(velocidad);
-}
-
 /* ============================================================================
  * PROGRAMA PRINCIPAL
  * ============================================================================ */
 
 int main(void) {
     
-    /* Configurar los 6 bits inferiores como salidas (0 = salida) */
-    CONF_PORT_SALIDA_LED = 0xC0;  /* bits 7,6 = entrada, bits 5-0 = salida */
+    /* Configurar LEDs como salidas */
+    CONF_PORT_SALIDA_LED = 0xC0;  /* bits 5-0 = salida */
+    PORT_SALIDA_LED = 0x00;       /* LEDs apagados */
     
-    /* Apagar todos los LEDs inicialmente */
-    PORT_SALIDA_LED = 0x00;
-    
+    /* Inicializar UART */
     uart_init();
-    uart_puts("##### UART ENCENDIDO #####\r\n");
+    uart_puts("6502 Template Ready!\r\n");
 
-    /* Bucle principal con secuencia de efectos */
+    /* Bucle principal */
     while (1) {
-        encendido(10000);
-        apagado(10000);
+        uart_puts("LED ON\r\n");
+        PORT_SALIDA_LED = 0x00;   /* Enciende (lógica inversa) */
+        delay(10000);
+        
+        uart_puts("LED OFF\r\n");
+        PORT_SALIDA_LED = 0xFF;   /* Apaga */
+        delay(10000);
     }
     
     return 0;

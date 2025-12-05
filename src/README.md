@@ -1,55 +1,42 @@
-# Código Fuente - 6502 LED Light Show
+# C�digo Fuente
 
 ## Archivos
 
-| Archivo | Descripción |
+| Archivo | Descripci�n |
 |---------|-------------|
-| `main.c` | **Programa principal** - Juego de luces LED |
-| `simple_vectors.s` | Vectores de interrupción para 6502 |
+| `main.c` | **Programa principal** - Edita aqu� tu c�digo |
+| `startup.s` | Inicializaci�n del sistema (copydata, zerobss) |
+| `simple_vectors.s` | Vectores de interrupci�n NMI, RESET, IRQ |
 
-## main.c - Juego de Luces LED
+## main.c
 
-Programa que controla 6 LEDs con efectos visuales.
+Este es el archivo principal donde escribes tu programa.
 
 ### Registros de Hardware
 
-| Registro | Dirección | Descripción |
+| Registro | Direcci�n | Descripci�n |
 |----------|-----------|-------------|
-| `PORT_SALIDA_LED` | $C001 | Datos de salida (bits 0-5 = LEDs) |
-| `CONF_PORT_SALIDA_LED` | $C003 | Configuración: 0=salida, 1=entrada |
+| `PORT_SALIDA_LED` | $C001 | Salida para 6 LEDs (bits 0-5) |
+| `CONF_PORT_SALIDA_LED` | $C003 | Config: 0=salida, 1=entrada |
 
-### Efectos Implementados
+## startup.s
 
-1. **Knight Rider**: LED que recorre ida y vuelta
-2. **Llenado**: LEDs se llenan desde extremos al centro
-3. **Alternado**: Parpadeo alternado (010101 ↔ 101010)
-4. **Contador**: Contador binario de 0 a 63
+C�digo de inicializaci�n que se ejecuta antes de `main()`:
 
-### Configuración Inicial
+1. Configura el stack pointer del 6502
+2. Configura el software stack de cc65
+3. Ejecuta `copydata` - copia variables inicializadas de ROM a RAM
+4. Ejecuta `zerobss` - inicializa variables BSS a cero
+5. Llama a `main()`
 
-```c
-CONF_PORT_SALIDA_LED = 0xC0;  // bits 7,6=entrada, bits 5-0=salida
-PORT_SALIDA_LED = 0x00;       // LEDs apagados
-```
-
-### Compilación
-
-```bash
-make
-```
+**No necesitas modificar este archivo.**
 
 ## simple_vectors.s
 
-Define los vectores de interrupción del 6502:
+Define los vectores de interrupci�n del 6502:
 
-| Vector | Dirección | Función |
-|--------|-----------|----------|
-| NMI | $9FFA | Retorno inmediato (RTI) |
-| RESET | $9FFC | Apunta a $8000 (inicio ROM) |
-| IRQ | $9FFE | Retorno inmediato (RTI) |
-
-## Hardware Requerido
-
-- 6502 CPU @ 3.375 MHz en FPGA Tang Nano
-- 6 LEDs conectados a bits 0-5 de $C001
-- Resistencias limitadoras para LEDs
+| Vector | Direcci�n | Funci�n |
+|--------|-----------|---------|
+| NMI | $9FFA | Non-Maskable Interrupt |
+| RESET | $9FFC | Apunta a startup |
+| IRQ | $9FFE | Interrupt Request |
