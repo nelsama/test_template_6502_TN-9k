@@ -78,10 +78,9 @@ $(STARTUP_OBJ): $(SRC_DIR)/startup.s
 $(MAIN_OBJ): $(SRC_DIR)/main.c
 	$(CL65) -t none $(INCLUDES) -c -o $@ $<
 
-# UART
-$(UART_OBJ): $(UART_DIR)/uart.c
-	$(CC65) $(CFLAGS) -o $(BUILD_DIR)/uart.s $<
-	$(CA65) -t none -o $@ $(BUILD_DIR)/uart.s
+# UART (versión ensamblador optimizada)
+$(UART_OBJ): $(UART_DIR)/uart.s
+	$(CA65) -t none -o $@ $<
 
 # Vectores
 $(VECTORS_OBJ): $(SRC_DIR)/simple_vectors.s
